@@ -13,7 +13,7 @@ const login = async ({
   email: string;
   password: string;
 }) => {
-  const user = await userRepository.getUserByEmail(email);
+  const user = await userRepository.findUserByEmail(email);
 
   if (!user) throw new Error("Invalid credentials");
 

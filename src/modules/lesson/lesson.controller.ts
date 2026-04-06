@@ -3,10 +3,13 @@ import catchAsync from "../../utils/catchAsync";
 import lessonService from "./lesson.service";
 import httpStatus from 'http-status';
 
-export const createLesson = catchAsync(async (req: Request, res: Response) => {
-  const { title, content } = req.body;
+export const createLesson = catchAsync(async (req: Request<{courseSlug: string, sectionSlug: string}>, res: Response) => {
 
-  const lesson = await lessonService.createLesson({title, content})
+  const { title, content, order, slug } = req.body;
+
+  const { courseSlug, sectionSlug } = req.params
+
+  const lesson = await lessonService.createLesson({courseSlug, sectionSlug, title, content, order, slug })
   res.status(httpStatus.CREATED).json({
     data: {
       id: lesson.id,

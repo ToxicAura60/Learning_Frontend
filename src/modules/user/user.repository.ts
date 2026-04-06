@@ -2,14 +2,6 @@ import { prisma } from "../../client";
 import { UniqueConstraintViolationError } from "../../errors/repository-error";
 import { Prisma, Role } from '../../generated/prisma/client';
 
-const getUserByEmail = async(
-  email: string,
-) => {
-  return prisma.user.findUnique({
-    where: { email }
-  });
-};
-
 const createUser = async ({
   email,
   password,
@@ -35,9 +27,16 @@ const createUser = async ({
     }
     throw error;
   }
- 
 }
+
+const findUserByEmail = async(email: string) => {
+  return prisma.user.findUnique({
+    where: { email }
+  });
+};
+
+
 export default {
-  getUserByEmail,
-  createUser
+  createUser,
+  findUserByEmail
 }

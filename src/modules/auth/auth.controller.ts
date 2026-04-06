@@ -5,9 +5,7 @@ import userService from '../user/user.service';
 import authService from './auth.service';
 
 export const register = catchAsync(async (req: Request, res: Response) => {
-  const { email, password } = req.body;
-
-  const user = await userService.createUser({email, password})
+  const user = await userService.createUser(req.body)
   res.status(httpStatus.CREATED).json({
     data: {
       id: user.id,

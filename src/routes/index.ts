@@ -1,10 +1,10 @@
 import { Router } from "express";
 import authRoute from "./auth.route"
-import lessonRoute from "./lesson.route"
+import courseRoute from "./course.route"
 
 const router = Router()
 
 router.use("/auth", authRoute)
-router.use("/lesson", lessonRoute)
+router.use("/course", courseRoute)
 
 export default router
