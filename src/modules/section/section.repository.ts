@@ -61,7 +61,7 @@ const updateSection = async ({
   order,
   slug
 }: {
-  id?: string;
+  id: string;
   title?: string;
   order?: number;
   slug?: string;
