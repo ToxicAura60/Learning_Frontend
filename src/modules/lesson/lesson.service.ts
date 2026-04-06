@@ -45,6 +45,35 @@ const createLesson = async ({
   }
 };
 
+const listLesson = async ({
+  courseSlug,
+  sectionSlug,
+}: {
+  courseSlug: string;
+  sectionSlug: string;
+}) => {
+  try {
+    const course = await courseRepository.findCourseBySlug(courseSlug)
+
+    if(!course) {
+      throw ""
+    }
+
+    const section = await sectionRepository.findSectionByCourseIdAndSlug({
+      courseId: course.id,
+      slug: sectionSlug
+    })
+
+    if(!section) {
+      throw ""
+    }
+
+    return await lessonRepository.listLesson(section.id)
+  } catch (error) {
+    throw error
+  }
+}
+
 const updateLesson = async ({
   courseSlug,
   sectionSlug,
@@ -142,6 +171,7 @@ const deleteLesson = async ({
 }
 export default {
   createLesson,
+  listLesson,
   updateLesson,
   deleteLesson,
 }
