@@ -32,16 +32,18 @@ const listCourse = async () => {
 }
 
 const updateCourse = async ({
+  oldSlug,
   title,
   description,
-  slug
+  newSlug
 }: {
-  title: string,
-  description: string
-  slug: string
+  oldSlug: string;
+  title?: string,
+  description?: string
+  newSlug?: string
 }) => {
   try {
-    const course = await courseRepository.findCourseBySlug(slug)
+    const course = await courseRepository.findCourseBySlug(oldSlug)
 
     if(!course) {
       throw ""
@@ -51,18 +53,14 @@ const updateCourse = async ({
       id: course.id,
       title,
       description,
-      slug
+      slug: newSlug
     })
   } catch (error) {
     throw ""
   }
 }
 
-const deleteCourse = async ({
-  slug
-}: {
-  slug: string
-}): Promise<void> => {
+const deleteCourse = async (slug: string): Promise<void> => {
   try {
     const course = await courseRepository.findCourseBySlug(slug)
 

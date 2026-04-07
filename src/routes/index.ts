@@ -5,6 +5,6 @@ import courseRoute from "./course.route"
 const router = Router()
 
 router.use("/auth", authRoute)
-router.use("/course", courseRoute)
+router.use("/courses", courseRoute)
 
 export default router

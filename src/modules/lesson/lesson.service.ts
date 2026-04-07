@@ -77,19 +77,19 @@ const listLesson = async ({
 const updateLesson = async ({
   courseSlug,
   sectionSlug,
-  lessonSlug,
+  oldSlug,
   title,
   content,
   order,
-  slug
+  newSlug
 }: {
   courseSlug: string;
   sectionSlug: string;
-  lessonSlug: string;
-  title: string;
-  content: string;
-  order: number;
-  slug: string;
+  oldSlug: string;
+  title?: string;
+  content?: string;
+  order?: number;
+  newSlug?: string;
 }) => {
   try {
     const course = await courseRepository.findCourseBySlug(courseSlug)
@@ -109,7 +109,7 @@ const updateLesson = async ({
 
     const lesson = await lessonRepository.findLessonBySectionIdAndSlug({
       sectionId: section.id,
-      slug: lessonSlug
+      slug: oldSlug
     })
 
     if(!lesson) {
@@ -121,7 +121,7 @@ const updateLesson = async ({
       title,
       content,
       order,
-      slug
+      slug: newSlug
     });
 
   } catch (error) {

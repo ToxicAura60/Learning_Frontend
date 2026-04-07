@@ -47,14 +47,16 @@ const listSection = async (courseSlug: string) => {
 
 const updateSection = async ({
   courseSlug,
+  oldSlug,
   title,
   order,
-  slug
+  newSlug
 }: {
   courseSlug: string;
-  title: string;
-  order: number;
-  slug: string;
+  oldSlug: string;
+  title?: string;
+  order?: number;
+  newSlug?: string;
 }) => {
   try {
     const course = await courseRepository.findCourseBySlug(courseSlug)
@@ -65,14 +67,19 @@ const updateSection = async ({
 
     const section = await sectionRepository.findSectionByCourseIdAndSlug({
       courseId: course.id,
-      slug
+      slug: oldSlug
     })
 
     if(!section) {
       throw ""
     }
 
-    return await sectionRepository.updateSection({id: section.id, title, order, slug})
+    return await sectionRepository.updateSection({
+      id: section.id,
+      title,
+      order,
+      slug: newSlug
+    })
   } catch (error) {
     throw error;
   }

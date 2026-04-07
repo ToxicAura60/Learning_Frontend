@@ -1,8 +1,14 @@
 import { Router } from "express";
-import { createLesson } from "../modules/lesson/lesson.controller";
+import { createLesson, deleteLesson, listLesson, updateLesson } from "../modules/lesson/lesson.controller";
 
-const router = Router()
+const router = Router({mergeParams: true})
 
 router.post("/", createLesson)
+
+router.get("/", listLesson)
+
+router.put("/:lessonSlug", updateLesson)
+
+router.delete("/:lessonSlug", deleteLesson)
 
 export default router

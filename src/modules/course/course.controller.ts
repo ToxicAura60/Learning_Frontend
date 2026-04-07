@@ -20,3 +20,38 @@ export const createCourse = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+export const listCourse = catchAsync(async (_req: Request, res: Response) => {
+  const course = await courseService.listCourse()
+
+  res.status(httpStatus.OK).json({
+    data: course
+  })
+})
+
+export const updateCourse = catchAsync(async (req: Request<{courseSlug: string}>, res: Response) => {
+
+  const { title, description, slug } = req.body
+
+  const { courseSlug } = req.params
+
+  const course = await courseService.updateCourse({
+    oldSlug: courseSlug,
+    title,
+    description,
+    newSlug: slug
+  })
+
+  res.status(httpStatus.OK).json({
+    data: course
+  })
+})
+
+export const deleteCourse = catchAsync(async (req: Request<{courseSlug: string}>, res: Response) => {
+  const { courseSlug } = req.params
+
+  await courseService.deleteCourse(courseSlug)
+
+  res.sendStatus(httpStatus.NO_CONTENT)
+})
+
+
