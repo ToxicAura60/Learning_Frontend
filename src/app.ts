@@ -1,6 +1,7 @@
 import express from "express"
 import routes from "./routes"
 import cors from "cors"
+import cookieParser from "cookie-parser"
 import { errorHandler } from "./routes/error"
 
 const app = express()
@@ -13,6 +14,8 @@ app.use(
     credentials: true,
   })
 );
+
+app.use(cookieParser());
 
 app.use("/api", routes)
 

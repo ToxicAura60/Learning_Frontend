@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import { generateToken, hashToken } from "../../utils/token";
 import { redis } from "../../redis";
 import userRepository from "../user/user.repository";
+import { KeycloakTokenResponse } from "../../types/auth.type";
 
 const ACCESS_TTL = 60 * 15;
 const REFRESH_TTL = 60 * 60 * 24 * 7;
@@ -45,56 +46,70 @@ const login = async ({
   await pipeline.exec();
 
   return {
-    user,
+    user: {
+      id: user.id,
+      email: user.email,
+      role: user.role
+    },
     accessToken,
     refreshToken,
   };
 };
 
-const refresh = async (refreshToken: string) => {
-  if (!refreshToken) throw new Error("Unauthorized");
+export const refresh = async (refreshToken: string): Promise<KeycloakTokenResponse> => {
+  const tokenUrl = `${process.env.KEYCLOAK_BASE_URL}/realms/${process.env.KEYCLOAK_REALM}/protocol/openid-connect/token`;
 
-  const refreshTokenHash = hashToken(refreshToken);
+  const params = new URLSearchParams({
+    grant_type: "refresh_token",
+    client_id: process.env.KEYCLOAK_CLIENT_ID!,
+    refresh_token: refreshToken,
+  });
 
-  const data = await redis.get(`refresh:${refreshTokenHash}`);
-  if (!data) throw new Error("Unauthorized");
+  const response = await fetch(tokenUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: params,
+  });
 
-  const { userId } = JSON.parse(data);
+  const data = await response.json();
 
-  const newAccessToken = generateToken();
-  const newRefreshToken = generateToken();
+  if (!response.ok) {
+    throw new Error("error");
+  }
 
-  const newAccessHash = hashToken(newAccessToken);
-  const newRefreshHash = hashToken(newRefreshToken);
-
-  const pipeline = redis.multi();
-
-  pipeline.del(`refresh:${refreshTokenHash}`);
-  pipeline.sRem(`user_refresh:${userId}`, refreshTokenHash);
-
-  pipeline.set(
-    `refresh:${newRefreshHash}`,
-    JSON.stringify({ userId }),
-    { EX: REFRESH_TTL }
-  );
-
-  pipeline.sAdd(`user_refresh:${userId}`, newRefreshHash);
-
-  pipeline.set(
-    `session:${newAccessHash}`,
-    JSON.stringify({ userId }),
-    { EX: ACCESS_TTL }
-  );
-
-  await pipeline.exec();
-
-  return {
-    accessToken: newAccessToken,
-    refreshToken: newRefreshToken,
-  };
+  return data as KeycloakTokenResponse;
 };
 
+const callback = async (code: string): Promise<KeycloakTokenResponse> => {
+  const tokenUrl = `${process.env.KEYCLOAK_BASE_URL}/realms/${process.env.KEYCLOAK_REALM}/protocol/openid-connect/token`;
+
+  const params = new URLSearchParams({
+    grant_type: "authorization_code",
+    client_id: process.env.KEYCLOAK_CLIENT_ID!,
+    code,
+    redirect_uri: process.env.KEYCLOAK_REDIRECT_URI!,
+  });
+
+  const response = await fetch(tokenUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: params,
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error("error")
+  }
+
+  return data as KeycloakTokenResponse;
+}
 export default {
   login,
   refresh,
+  callback
 };

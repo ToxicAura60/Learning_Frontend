@@ -4,31 +4,41 @@ import httpStatus from 'http-status';
 import userService from '../user/user.service';
 import authService from './auth.service';
 
-export const register = catchAsync(async (req: Request, res: Response) => {
-  const user = await userService.createUser(req.body)
-  res.status(httpStatus.CREATED).json({
-    data: {
-      id: user.id,
-      email: user.email,
-    }
-  });
-});
+export const refresh = catchAsync(async (req: Request, res: Response) => {
+  const refreshToken = req.cookies.refresh_token;
 
-export const login = catchAsync(async (req: Request, res: Response) => {
-  const { user, accessToken, refreshToken } = await authService.login(req.body);
+  const { access_token, refresh_token, refresh_expires_in } = await authService.refresh(refreshToken);
 
-  res.cookie("refresh_token", refreshToken, {
+  res.cookie("refresh_token", refresh_token, {
     httpOnly: true,
     secure: false,
     sameSite: "lax",
-    maxAge: 7 * 24 * 60 * 60 * 1000,  
+    maxAge: refresh_expires_in * 1000,
   });
 
   res.status(httpStatus.OK).json({
     data: {
-      user,
-      accessToken
+      access_token
     }
   });
 });
 
+export const callback = catchAsync(async (req: Request, res: Response) => {
+  const { code } = req.body
+
+  const { access_token, refresh_token, id_token, refresh_expires_in } = await authService.callback(code);
+
+  res.cookie("refresh_token", refresh_token, {
+    httpOnly: true,
+    secure: false,
+    sameSite: "lax",
+    maxAge: refresh_expires_in * 1000,
+  });
+
+  res.status(httpStatus.OK).json({
+    data: {
+      access_token,
+      id_token
+    }
+  })
+})

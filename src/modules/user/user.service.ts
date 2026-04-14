@@ -19,7 +19,7 @@ const createUser = async ({
     return await userRepository.createUser({
       email,
       password: encryptedPassword,
-      role
+      role,
     });
     
   } catch (error) {
