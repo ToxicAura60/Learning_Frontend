@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
 import catchAsync from '../../utils/catchAsync';
 import httpStatus from 'http-status';
-import userService from '../user/user.service';
 import authService from './auth.service';
 
 export const refresh = catchAsync(async (req: Request, res: Response) => {
